@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @SpringBootApplication
 @RestController
@@ -31,37 +28,52 @@ public class CasestudyResourceServiceApplication extends WebSecurityConfigurerAd
 	}
 
 	private String message = "Hello World";
-	private Map<String, Object> changes = new HashMap<>();
+
+    public ArrayList getChanges() {
+        return changes;
+    }
+
+    public void setChanges(ArrayList changes) {
+        this.changes = changes;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    private ArrayList changes = new ArrayList<>();
 
 	@RequestMapping(value="/", method= RequestMethod.GET)
 	public Map<String,Object> home() {
 		Map<String,Object> model = new HashMap<String,Object>();
 		model.put("id", UUID.randomUUID().toString());
-		model.put("content", this.message);
+		model.put("content", message);
 		return model;
 	}
 
 	@RequestMapping(value="/changes", method=RequestMethod.GET)
-	public Map<String, Object> changes() {
-		return this.changes;
+	public ArrayList changes() {
+		return getChanges();
 	}
 
-	//THIS METHOD DOES NOT WORK YET!
 	@RequestMapping(value="/", method=RequestMethod.POST)
 	public Map<String, Object> update(@RequestBody Map<String,String> map, Principal principal) {
 		if (map.containsKey("content")) {
 			message = map.get("content");
-			this.changes.put("timestamp",new Date());
-			this.changes.put("user", principal.getName());
-			this.changes.put("content", this.message);
-			if (this.changes.size()>10) {
-				//changes = changes[0..9]
-			}
+            Map<String, Object> model = new HashMap<>();
+            model.put("timestamp", new Date());
+            model.put("user", principal.getName());
+            model.put("content", message);
+            changes.add(model);
 		}
-		Map<String, Object> hm = new HashMap<>();
-		hm.put("id", UUID.randomUUID().toString());
-		hm.put("content", this.message);
-		return hm;
+        Map<String,Object> model = new HashMap<String,Object>();
+        model.put("id", UUID.randomUUID().toString());
+        model.put("content", message);
+        return model;
 	}
 
 	@Override
